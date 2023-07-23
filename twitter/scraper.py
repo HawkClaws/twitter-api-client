@@ -3,7 +3,7 @@ import logging.config
 import math
 import platform
 
-import aiofiles
+# import aiofiles
 import websockets
 from httpx import AsyncClient, Limits, ReadTimeout, URL
 from tqdm.asyncio import tqdm_asyncio
@@ -12,21 +12,21 @@ from .constants import *
 from .login import login
 from .util import *
 
-try:
-    if get_ipython().__class__.__name__ == 'ZMQInteractiveShell':
-        import nest_asyncio
+# try:
+#     if get_ipython().__class__.__name__ == 'ZMQInteractiveShell':
+#         import nest_asyncio
 
-        nest_asyncio.apply()
-except:
-    ...
+#         nest_asyncio.apply()
+# except:
+#     ...
 
-if platform.system() != 'Windows':
-    try:
-        import uvloop
+# if platform.system() != 'Windows':
+#     try:
+#         import uvloop
 
-        uvloop.install()
-    except ImportError as e:
-        ...
+#         uvloop.install()
+#     except ImportError as e:
+#         ...
 
 
 class Scraper:
@@ -269,6 +269,7 @@ class Scraper:
             ext = urlsplit(cdn_url).path.split('/')[-1]
             try:
                 r = await client.get(cdn_url)
+                # TODO aiofiles
                 async with aiofiles.open(out / f'{name}_{ext}', 'wb') as fp:
                     for chunk in r.iter_bytes(chunk_size=chunk_size):
                         await fp.write(chunk)
@@ -365,7 +366,7 @@ class Scraper:
             self._download_audio(temp)
         return chat_data
 
-    async def _get_stream(self, client: AsyncClient, media_key: str) -> dict | None:
+    async def _get_stream(self, client: AsyncClient, media_key: str):
         params = {
             'client': 'web',
             'use_syndication_guest_id': 'false',
@@ -506,7 +507,7 @@ class Scraper:
 
         return asyncio.run(process())
 
-    def _run(self, operation: tuple[dict, str, str], queries: set | list[int | str | dict], **kwargs):
+    def _run(self, operation: tuple[dict, str, str], queries, **kwargs):
         keys, qid, name = operation
         # stay within rate-limits
         if (l := len(queries)) > 500:
@@ -731,7 +732,7 @@ class Scraper:
             except Exception as e:
                 self.logger.error(f'Failed to get chunks\n{e}')
 
-        async def poll_space(client: AsyncClient, space: dict) -> dict | None:
+        async def poll_space(client: AsyncClient, space: dict):
             curr = 0
             lim = 10
             all_chunks = set()

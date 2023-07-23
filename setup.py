@@ -448,7 +448,7 @@ setup(
     ```
 
     '''),
-    python_requires=">=3.10.10",
+    python_requires=">=3.8.5",
     long_description_content_type='text/markdown',
     author_email='trevorhobenshield@gmail.com',
     url='https://github.com/trevorhobenshield/twitter-api-client',

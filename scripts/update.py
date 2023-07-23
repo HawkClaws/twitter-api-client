@@ -5,27 +5,27 @@ import re
 import subprocess
 from pathlib import Path
 
-import aiofiles
+# import aiofiles
 import orjson
 from httpx import AsyncClient, Client, Response
 
 from twitter.constants import *
 
-try:
-    if get_ipython().__class__.__name__ == 'ZMQInteractiveShell':
-        import nest_asyncio
+# try:
+#     if get_ipython().__class__.__name__ == 'ZMQInteractiveShell':
+#         import nest_asyncio
 
-        nest_asyncio.apply()
-except:
-    ...
+#         nest_asyncio.apply()
+# except:
+#     ...
 
-if platform.system() != 'Windows':
-    try:
-        import uvloop
+# if platform.system() != 'Windows':
+#     try:
+#         import uvloop
 
-        uvloop.install()
-    except ImportError as e:
-        ...
+#         uvloop.install()
+#     except ImportError as e:
+#         ...
 
 _a = 'a.js'
 _base = 'https://abs.twimg.com/responsive-web/client-web'
@@ -80,6 +80,7 @@ async def get(session: AsyncClient, url: str, **kwargs) -> tuple[str, str]:
     try:
         logger.debug(f"GET {url}")
         r = await session.get(url)
+        # TODO aiofiles
         async with aiofiles.open(JS_FILES / url.split('/')[-1], 'wb') as f:
             await f.write(r.content)
         return url, r.text

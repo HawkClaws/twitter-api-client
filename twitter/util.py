@@ -57,10 +57,10 @@ def save_json(r: Response, path: Path, name: str, **kwargs):
         print(f'Failed to save data: {e}')
 
 
-def flatten(seq: list | tuple) -> list:
+def flatten(seq) -> list:
     flat = []
     for e in seq:
-        if isinstance(e, list | tuple):
+        if isinstance(e, list) or isinstance(e, tuple):
             flat.extend(flatten(e))
         else:
             flat.append(e)
@@ -91,7 +91,7 @@ def set_qs(url: str, qs: dict, update=False, **kwargs) -> str:
                                      safe=kwargs.get('safe', '')), f))
 
 
-def get_cursor(data: list | dict) -> str:
+def get_cursor(data) -> str:
     # inefficient, but need to deal with arbitrary schema
     entries = find_key(data, 'entries')
     if entries:
@@ -212,7 +212,7 @@ def fmt_status(status: int) -> str:
     return f'[{color}{status}{RESET}]'
 
 
-def get_ids(data: list | dict, operation: tuple) -> set:
+def get_ids(data, operation: tuple) -> set:
     expr = ID_MAP[operation[-1]]
     return {k for k in find_key(data, 'entryId') if re.search(expr, k)}
 
@@ -225,7 +225,7 @@ def dump(path: str, **kwargs):
         orjson.dumps(data, option=orjson.OPT_INDENT_2 | orjson.OPT_SORT_KEYS))
 
 
-def get_code(cls, retries=5) -> str | None:
+def get_code(cls, retries=5):
     """ Get verification code from Proton Mail inbox """
 
     def poll_inbox():

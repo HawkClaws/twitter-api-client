@@ -18,21 +18,21 @@ from .util import get_headers, find_key, build_params
 reset = '\x1b[0m'
 colors = [f'\x1b[{i}m' for i in range(31, 37)]
 
-try:
-    if get_ipython().__class__.__name__ == 'ZMQInteractiveShell':
-        import nest_asyncio
+# try:
+#     if get_ipython().__class__.__name__ == 'ZMQInteractiveShell':
+#         import nest_asyncio
 
-        nest_asyncio.apply()
-except:
-    ...
+#         nest_asyncio.apply()
+# except:
+#     ...
 
-if platform.system() != 'Windows':
-    try:
-        import uvloop
+# if platform.system() != 'Windows':
+#     try:
+#         import uvloop
 
-        uvloop.install()
-    except ImportError as e:
-        ...
+#         uvloop.install()
+#     except ImportError as e:
+#         ...
 
 
 class Search:
