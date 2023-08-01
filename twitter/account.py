@@ -461,7 +461,7 @@ class Account:
             for i in tweets_temp:
                 try:
                     result = i['content']['itemContent']['tweet_results']['result']
-                    tweet_results_list.append(TweetData(tweet=tweet_to_user_data(result),user=tweet_to_tweet_data(result)))
+                    tweet_results_list.append(TweetData(tweet=tweet_to_tweet_data(result),user=tweet_to_user_data(result)))
                     
                 except KeyError:
                     ...
