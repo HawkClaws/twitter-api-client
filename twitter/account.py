@@ -17,6 +17,10 @@ from .constants import *
 from .login import login
 from .util import *
 
+from twitter.model.tweet_data import TweetData
+from twitter.model.tweet import Tweet
+from twitter.model.user import User
+
 # try:
 #     if get_ipython().__class__.__name__ == 'ZMQInteractiveShell':
 #         import nest_asyncio
@@ -449,6 +453,32 @@ class Account:
 
     def home_latest_timeline(self, limit=math.inf) -> list[dict]:
         return self._paginate('POST', Operation.HomeLatestTimeline, Operation.default_variables, limit)
+    
+    def home_latest_timeline_typed(self, limit=math.inf) -> list[TweetData]:
+        def timeline_to_tweet(timeline) -> list:
+            tweets_temp = timeline[0]['data']['home']['home_timeline_urt']['instructions'][0]['entries']
+            tweet_results_list: list[TweetData] = []
+            for i in tweets_temp:
+                try:
+                    result = i['content']['itemContent']['tweet_results']['result']
+                    tweet_results_list.append(TweetData(tweet=tweet_to_user_data(result),user=tweet_to_tweet_data(result)))
+                    
+                except KeyError:
+                    ...
+            return tweet_results_list
+
+
+        def tweet_to_user_data(tweet) -> User:
+            user_data = tweet['core']['user_results']['result']['legacy']
+            return User(**user_data)
+
+
+        def tweet_to_tweet_data(tweet) -> Tweet:
+            tweet_data = tweet['legacy']
+            return Tweet(**tweet_data)
+
+        timeline = self._paginate('POST', Operation.HomeLatestTimeline, Operation.default_variables, limit)
+        return timeline_to_tweet(timeline)
 
     def bookmarks(self, limit=math.inf) -> list[dict]:
         return self._paginate('GET', Operation.Bookmarks, {}, limit)
