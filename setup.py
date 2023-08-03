@@ -9,6 +9,7 @@ install_requires = [
     "httpx",
     "tqdm",
     "orjson",
+    "pydantic",
     'uvloop; platform_system != "Windows"',
 ]
 
