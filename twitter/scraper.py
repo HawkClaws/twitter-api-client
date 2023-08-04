@@ -12,6 +12,8 @@ from .constants import *
 from .login import login
 from .util import *
 
+from .model.user import User
+
 # try:
 #     if get_ipython().__class__.__name__ == 'ZMQInteractiveShell':
 #         import nest_asyncio
@@ -48,6 +50,14 @@ class Scraper:
         @return: list of user data as dicts
         """
         return self._run(Operation.UserByScreenName, screen_names, **kwargs)
+
+    def users_typed(self, screen_names: list[str]) -> list[User]:
+        users = self.users(screen_names)
+        result_users: list[User] = []
+        for user_data in users:
+            result_users.append(
+                User(**user_data['data']['user']['result']['legacy']))
+        return result_users
 
     def tweets_by_id(self, tweet_ids: list[int], **kwargs) -> list[dict]:
         """
@@ -130,6 +140,10 @@ class Scraper:
         @return: list of user data as dicts
         """
         return self._run(Operation.Followers, user_ids, **kwargs)
+    
+    def followers_typed(self, user_ids: list[int], **kwargs) -> list[User]:
+        follows_list = self.followers(user_ids,**kwargs)
+        return self.follow_typed(follows_list)
 
     def following(self, user_ids: list[int], **kwargs) -> list[dict]:
         """
@@ -142,6 +156,24 @@ class Scraper:
         @return: list of user data as dicts
         """
         return self._run(Operation.Following, user_ids, **kwargs)
+
+    def following_typed(self, user_ids: list[int], **kwargs) -> list[User]:
+        follows_list = self.following(user_ids,**kwargs)
+        return self.follow_typed(follows_list)
+    
+    def follow_typed(self, follows_list) -> list[User]:
+        result_users: list[User] = []
+        for followings in follows_list:
+            try:
+                for following in followings['data']['user']['result']['timeline']['timeline']['instructions'][2]['entries']:
+                    follow = following['content']['itemContent']['user_results']['result']['legacy']
+                    result_users.append(follow)
+            except KeyError:
+                ...
+            except IndexError:
+                ...
+
+        return result_users
 
     def favoriters(self, tweet_ids: list[int], **kwargs) -> list[dict]:
         """
