@@ -469,7 +469,9 @@ class Account:
 
 
         def tweet_to_user_data(tweet) -> User:
-            user_data = tweet['core']['user_results']['result']['legacy']
+            user_data_temp = tweet['core']['user_results']['result']
+            user_data = user_data_temp['legacy']
+            user_data['user_id'] = user_data_temp['rest_id']
             return User(**user_data)
 
 
