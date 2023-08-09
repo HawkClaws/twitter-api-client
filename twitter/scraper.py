@@ -54,9 +54,11 @@ class Scraper:
     def users_typed(self, screen_names: list[str]) -> list[User]:
         users = self.users(screen_names)
         result_users: list[User] = []
-        for user_data in users:
-            result_users.append(
-                User(**user_data['data']['user']['result']['legacy']))
+        for user in users:
+            user_data_temp = user['data']['user']['result']
+            user_data = user_data_temp['legacy']
+            user_data['user_id'] = user_data_temp['rest_id']
+            result_users.append(User(**user_data))
         return result_users
 
     def tweets_by_id(self, tweet_ids: list[int], **kwargs) -> list[dict]:
@@ -166,8 +168,10 @@ class Scraper:
         for followings in follows_list:
             try:
                 for following in followings['data']['user']['result']['timeline']['timeline']['instructions'][2]['entries']:
-                    follow = following['content']['itemContent']['user_results']['result']['legacy']
-                    result_users.append(follow)
+                    follow_temp = following['content']['itemContent']['user_results']['result']
+                    follow = follow_temp['legacy']
+                    follow['user_id'] = follow_temp['rest_id']
+                    result_users.append(User(**follow))
             except KeyError:
                 ...
             except IndexError:

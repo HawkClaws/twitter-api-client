@@ -14,6 +14,7 @@ class Entities(BaseModel):
 
 
 class User(BaseModel):
+    user_id: Optional[str] = None
     followed_by: Optional[bool] = None
     following: Optional[bool] = None
     can_dm: Optional[bool] = None
