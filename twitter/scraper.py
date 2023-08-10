@@ -99,7 +99,12 @@ class Scraper:
 
     def tweets_typed(self, user_ids: list[int], **kwargs) -> list[TweetData]:
         def tweets_to_tweet(tweets) -> list:
-            tweets_temp = tweets[0]['data']['user']['result']['timeline_v2']['timeline']['instructions'][2]['entries'] # TODO 最初の0はループさせないとそれ以降の取得ができない
+            tweets_temp = tweets[0]['data']['user']['result']['timeline_v2']['timeline']['instructions'] # TODO 最初の0はループさせないとそれ以降の取得ができない
+            for d in tweets_temp:
+                if d['type'] == "TimelineAddEntries":
+                    tweets_temp = d
+                    break
+            tweets_temp = tweets_temp['entries']
             tweet_results_list: list[TweetData] = []
             for i in tweets_temp:
                 try:
@@ -198,7 +203,11 @@ class Scraper:
         result_users: list[User] = []
         for followings in follows_list:
             try:
-                for following in followings['data']['user']['result']['timeline']['timeline']['instructions'][2]['entries']:
+                for d in followings['data']['user']['result']['timeline']['timeline']['instructions']:
+                    if d['type'] == "TimelineAddEntries":
+                        followings = d
+                        break
+                for following in followings['entries']:
                     follow_temp = following['content']['itemContent']['user_results']['result']
                     follow = follow_temp['legacy']
                     follow['user_id'] = follow_temp['rest_id']
