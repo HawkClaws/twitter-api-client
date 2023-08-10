@@ -12,7 +12,9 @@ from .constants import *
 from .login import login
 from .util import *
 
-from .model.user import User
+from twitter.model.tweet_data import TweetData
+from twitter.model.tweet import Tweet
+from twitter.model.user import User
 
 # try:
 #     if get_ipython().__class__.__name__ == 'ZMQInteractiveShell':
@@ -94,6 +96,35 @@ class Scraper:
         @return: list of tweet data as dicts
         """
         return self._run(Operation.UserTweets, user_ids, **kwargs)
+
+    def tweets_typed(self, user_ids: list[int], **kwargs) -> list[TweetData]:
+        def tweets_to_tweet(tweets) -> list:
+            tweets_temp = tweets[0]['data']['user']['result']['timeline_v2']['timeline']['instructions'][2]['entries'] # TODO 最初の0はループさせないとそれ以降の取得ができない
+            tweet_results_list: list[TweetData] = []
+            for i in tweets_temp:
+                try:
+                    result = i['content']['itemContent']['tweet_results']['result']
+                    tweet_results_list.append(TweetData(tweet=tweet_to_tweet_data(result),user=tweet_to_user_data(result)))
+                    
+                except KeyError:
+                    ...
+            return tweet_results_list
+
+
+        def tweet_to_user_data(tweet) -> User:
+            user_data_temp = tweet['core']['user_results']['result']
+            user_data = user_data_temp['legacy']
+            user_data['user_id'] = user_data_temp['rest_id']
+            return User(**user_data)
+
+
+        def tweet_to_tweet_data(tweet) -> Tweet:
+            tweet_data = tweet['legacy']
+            return Tweet(**tweet_data)
+
+        tweets = self._run(Operation.UserTweets, user_ids, **kwargs)
+        return tweets_to_tweet(tweets)
+    
 
     def tweets_and_replies(self, user_ids: list[int], **kwargs) -> list[dict]:
         """

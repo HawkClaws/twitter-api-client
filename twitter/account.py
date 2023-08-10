@@ -456,7 +456,7 @@ class Account:
     
     def home_latest_timeline_typed(self, limit=math.inf) -> list[TweetData]:
         def timeline_to_tweet(timeline) -> list:
-            tweets_temp = timeline[0]['data']['home']['home_timeline_urt']['instructions'][0]['entries']
+            tweets_temp = timeline[0]['data']['home']['home_timeline_urt']['instructions'][0]['entries'] # TODO 最初の0はループさせないとそれ以降の取得ができない
             tweet_results_list: list[TweetData] = []
             for i in tweets_temp:
                 try:
