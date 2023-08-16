@@ -99,7 +99,7 @@ class Scraper:
 
     def tweets_typed(self, user_ids: list[int], **kwargs) -> list[TweetData]:
         def tweets_to_tweet(tweets) -> list[TweetData]:
-            tweets_temp = tweets[0]['data']['user']['result']['timeline_v2']['timeline']['instructions'] # TODO 最初の0はループさせないとそれ以降の取得ができない
+            tweets_temp = tweets[0]['data']['user']['result']['timeline_v2']['timeline']['instructions']
             for d in tweets_temp:
                 if d['type'] == "TimelineAddEntries":
                     tweets_temp = d
