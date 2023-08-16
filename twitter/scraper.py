@@ -98,7 +98,7 @@ class Scraper:
         return self._run(Operation.UserTweets, user_ids, **kwargs)
 
     def tweets_typed(self, user_ids: list[int], **kwargs) -> list[TweetData]:
-        def tweets_to_tweet(tweets) -> list:
+        def tweets_to_tweet(tweets) -> list[TweetData]:
             tweets_temp = tweets[0]['data']['user']['result']['timeline_v2']['timeline']['instructions'] # TODO 最初の0はループさせないとそれ以降の取得ができない
             for d in tweets_temp:
                 if d['type'] == "TimelineAddEntries":
@@ -127,8 +127,13 @@ class Scraper:
             tweet_data = tweet['legacy']
             return Tweet(**tweet_data)
 
-        tweets = self._run(Operation.UserTweets, user_ids, **kwargs)
-        return tweets_to_tweet(tweets)
+        tweets_list = self._run(Operation.UserTweets, user_ids, **kwargs)
+
+        tweet_results_list: list[TweetData] = []
+        for tweets in tweets_list:
+            tweet_results_list.extend(tweets_to_tweet(tweets))
+
+        return tweet_results_list
     
 
     def tweets_and_replies(self, user_ids: list[int], **kwargs) -> list[dict]:

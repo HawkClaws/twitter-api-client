@@ -455,8 +455,8 @@ class Account:
         return self._paginate('POST', Operation.HomeLatestTimeline, Operation.default_variables, limit)
     
     def home_latest_timeline_typed(self, limit=math.inf) -> list[TweetData]:
-        def timeline_to_tweet(timeline) -> list:
-            tweets_temp = timeline[0]['data']['home']['home_timeline_urt']['instructions'][0]['entries'] # TODO 最初の0はループさせないとそれ以降の取得ができない
+        def timeline_to_tweet(timeline) -> list[TweetData]:
+            tweets_temp = timeline['data']['home']['home_timeline_urt']['instructions'][0]['entries']
             tweet_results_list: list[TweetData] = []
             for i in tweets_temp:
                 try:
@@ -479,8 +479,13 @@ class Account:
             tweet_data = tweet['legacy']
             return Tweet(**tweet_data)
 
-        timeline = self._paginate('POST', Operation.HomeLatestTimeline, Operation.default_variables, limit)
-        return timeline_to_tweet(timeline)
+        timeline_list = self._paginate('POST', Operation.HomeLatestTimeline, Operation.default_variables, limit)
+
+        tweet_results_list: list[TweetData] = []
+        for tweets in timeline_list:
+            tweet_results_list.extend(timeline_to_tweet(tweets))
+
+        return tweet_results_list
 
     def bookmarks(self, limit=math.inf) -> list[dict]:
         return self._paginate('GET', Operation.Bookmarks, {}, limit)

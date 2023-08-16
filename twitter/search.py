@@ -52,10 +52,9 @@ class Search:
         return asyncio.run(self.process(queries, limit, out, **kwargs))
     
     def run_typed(self, queries: list[dict], limit: int = math.inf, out: str = 'data/search_results', **kwargs) -> list[TweetData]:
-        def tweets_to_tweet(tweets) -> list:
-            tweets_temp = tweets[0] # TODO 最初の0はループさせないとそれ以降の取得ができない
+        def tweets_to_tweet(tweets) -> list[TweetData]:
             tweet_results_list: list[TweetData] = []
-            for i in tweets_temp:
+            for i in tweets:
                 try:
                     result = i['content']['itemContent']['tweet_results']['result']
                     tweet_results_list.append(TweetData(tweet=tweet_to_tweet_data(result),user=tweet_to_user_data(result)))
@@ -76,8 +75,12 @@ class Search:
             tweet_data = tweet['legacy']
             return Tweet(**tweet_data)
 
-        tweets = self.run(queries, limit, out, **kwargs)
-        return tweets_to_tweet(tweets)
+        tweets_list = self.run(queries, limit, out, **kwargs)
+        tweet_results_list: list[TweetData] = []
+        for tweets in tweets_list:
+            tweet_results_list.extend(tweets_to_tweet(tweets))
+
+        return tweet_results_list
     
     async def process(self, queries: list[dict], limit: int, out: Path, **kwargs) -> list:
         async with AsyncClient(headers=get_headers(self.session)) as s:
