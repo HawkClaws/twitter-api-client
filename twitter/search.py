@@ -15,6 +15,10 @@ from .constants import *
 from .login import login
 from .util import get_headers, find_key, build_params
 
+from twitter.model.tweet_data import TweetData
+from twitter.model.tweet import Tweet
+from twitter.model.user import User
+
 reset = '\x1b[0m'
 colors = [f'\x1b[{i}m' for i in range(31, 37)]
 
@@ -46,7 +50,35 @@ class Search:
         out = Path(out)
         out.mkdir(parents=True, exist_ok=True)
         return asyncio.run(self.process(queries, limit, out, **kwargs))
+    
+    def run_typed(self, queries: list[dict], limit: int = math.inf, out: str = 'data/search_results', **kwargs) -> list[TweetData]:
+        def tweets_to_tweet(tweets) -> list:
+            tweets_temp = tweets[0] # TODO 最初の0はループさせないとそれ以降の取得ができない
+            tweet_results_list: list[TweetData] = []
+            for i in tweets_temp:
+                try:
+                    result = i['content']['itemContent']['tweet_results']['result']
+                    tweet_results_list.append(TweetData(tweet=tweet_to_tweet_data(result),user=tweet_to_user_data(result)))
+                    
+                except KeyError:
+                    ...
+            return tweet_results_list
 
+
+        def tweet_to_user_data(tweet) -> User:
+            user_data_temp = tweet['core']['user_results']['result']
+            user_data = user_data_temp['legacy']
+            user_data['user_id'] = user_data_temp['rest_id']
+            return User(**user_data)
+
+
+        def tweet_to_tweet_data(tweet) -> Tweet:
+            tweet_data = tweet['legacy']
+            return Tweet(**tweet_data)
+
+        tweets = self.run(queries, limit, out, **kwargs)
+        return tweets_to_tweet(tweets)
+    
     async def process(self, queries: list[dict], limit: int, out: Path, **kwargs) -> list:
         async with AsyncClient(headers=get_headers(self.session)) as s:
             return await asyncio.gather(*(self.paginate(s, q, limit, out, **kwargs) for q in queries))
